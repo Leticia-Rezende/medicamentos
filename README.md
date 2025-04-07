@@ -58,11 +58,16 @@ ponto-e-vírgula</li>
   <li> Preencha as informações, tanto de <I>Medicamento</I> tanto de <I>Fornecedor</I> </li>
   <li> Clique no botão desejado no momento:</li>
       <ul>
-        <li>Cadastrar</li>
-        <li>Excluir</li>
-        <li>Consultar</li>
-        <li>Listar Medicamentos</li>
-      </ul>
+        <li>Cadastrar : cadastrar um novo medicamento com todos seus dados</li>
+        <li>Excluir : excluir um medicamento existente (só poderá excluir se houver medicamento cadastrado)</li>
+        <li>Consultar : consultar um medicamento específico por código</li>
+        <li>Listar Medicamentos : listar todos os medicamentos cadastrados</li>
+      </ul> <br>
+  <li>Após adicionar as informações dos medicamentos e dos fornecedores, podemos filtrar algumas informações, como:</li>
+    <ul>
+      <li>Filtrar medicamentos com estoque baixo (menos de 5 unidades)</li>
+      <li>Filtrar medicamentos próximos ao vencimento (próximos 30 dias)</li>
+    </ul>
 </ol>
 
 
