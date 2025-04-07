@@ -37,12 +37,12 @@ reduce, etc.)</li>
     <li>Os dados devem ser salvos em um arquivo CSV com campos separados por
 ponto-e-vírgula</li>
     <li>O sistema deve carregar os dados do arquivo ao iniciar</li>
-    <li>As alterações devem ser salvas no arquivo após cada operação</li>
+    <li>As alterações devem ser salvas no arquivo após cada operação</li><br>
   </ul>
  <li>Relatórios:</li>
   <ul>
     <li>Filtrar medicamentos próximos ao vencimento (próximos 30 dias)</li>
-    <li>Filtrar medicamentos com estoque baixo (menos de 5 unidades)</li>
+    <li>Filtrar medicamentos com estoque baixo (menos de 5 unidades)</li><br>
   </ul>
 </ol>
 
@@ -52,6 +52,17 @@ ponto-e-vírgula</li>
   <li> Abre a pasta em uma IDE de sua preferência</li>
   <li> Mude o caminho do PathFXML para o caminho indicado até a pasta <I>view</I></li>
   <li>Em seguida, execute o programa</li>
+</ol>
+<h2>Programa aberto, e agora?</h2>
+<ol>
+  <li> Preencha as informações, tanto de <I>Medicamento</I> tanto de <I>Fornecedor</I> </li>
+  <li> Clique no botão desejado no momento:</li>
+      <ul>
+        <li>Cadastrar</li>
+        <li>Excluir</li>
+        <li>Consultar</li>
+        <li>Listar Medicamentos</li>
+      </ul>
 </ol>
 
 
