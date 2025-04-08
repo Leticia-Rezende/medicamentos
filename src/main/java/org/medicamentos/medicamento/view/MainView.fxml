@@ -19,7 +19,7 @@
 <?import javafx.scene.paint.Stop?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="638.0" prefWidth="951.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="638.0" prefWidth="951.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.medicamentos.medicamento.controller.MainController">
    <children>
       <HBox prefHeight="650.0" prefWidth="941.0">
          <children>
@@ -79,7 +79,7 @@
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                             </rowConstraints>
                                              <children>
-                                                <Label layoutX="10.0" layoutY="17.0" text="Nome:" GridPane.rowIndex="2">
+                                                <Label fx:id="lbNome" layoutX="10.0" layoutY="17.0" text="Nome:" GridPane.rowIndex="2">
                                                    <opaqueInsets>
                                                       <Insets />
                                                    </opaqueInsets>
@@ -90,42 +90,42 @@
                                                       <Insets left="10.0" />
                                                    </padding>
                                                 </Label>
-                                                <Label layoutX="10.0" layoutY="77.0" text="Descrição:" GridPane.rowIndex="4">
+                                                <Label fx:id="lbDescricao" layoutX="10.0" layoutY="77.0" text="Descrição:" GridPane.rowIndex="4">
                                                    <padding>
                                                       <Insets left="10.0" />
                                                    </padding>
                                                 </Label>
-                                                <Label layoutX="10.0" layoutY="137.0" text="Principio Ativo:" GridPane.rowIndex="6">
+                                                <Label fx:id="lbPrincipioAtivo" layoutX="10.0" layoutY="137.0" text="Principio Ativo:" GridPane.rowIndex="6">
                                                    <padding>
                                                       <Insets left="10.0" />
                                                    </padding>
                                                 </Label>
-                                                <Label layoutX="10.0" layoutY="197.0" text="Data Validade:" GridPane.rowIndex="8">
+                                                <Label fx:id="lbDataValidade" layoutX="10.0" layoutY="197.0" text="Data Validade:" GridPane.rowIndex="8">
                                                    <padding>
                                                       <Insets left="10.0" />
                                                    </padding>
                                                 </Label>
-                                                <Label layoutX="10.0" layoutY="257.0" text="Quantidade:" GridPane.rowIndex="10">
+                                                <Label fx:id="lbQuantidade" layoutX="10.0" layoutY="257.0" text="Quantidade:" GridPane.rowIndex="10">
                                                    <padding>
                                                       <Insets left="10.0" />
                                                    </padding>
                                                 </Label>
-                                                <Label layoutX="10.0" layoutY="317.0" text="Preço:" GridPane.rowIndex="12">
+                                                <Label fx:id="lbPreco" layoutX="10.0" layoutY="317.0" text="Preço:" GridPane.rowIndex="12">
                                                    <padding>
                                                       <Insets left="10.0" />
                                                    </padding>
                                                 </Label>
-                                                <Label layoutX="10.0" layoutY="377.0" text="Controlado:" GridPane.rowIndex="14">
+                                                <Label fx:id="lbControlado" layoutX="10.0" layoutY="377.0" text="Controlado:" GridPane.rowIndex="14">
                                                    <padding>
                                                       <Insets left="10.0" />
                                                    </padding>
                                                 </Label>
-                                                <Label layoutX="10.0" layoutY="437.0" text="Fornecedor:" GridPane.rowIndex="16">
+                                                <Label fx:id="lbFornecedor" layoutX="10.0" layoutY="437.0" text="Fornecedor:" GridPane.rowIndex="16">
                                                    <padding>
                                                       <Insets left="10.0" />
                                                    </padding>
                                                 </Label>
-                                                <Label layoutX="10.0" layoutY="17.0" text="Código:">
+                                                <Label fx:id="lblCodigo" layoutX="10.0" layoutY="17.0" text="Código:">
                                                    <padding>
                                                       <Insets left="10.0" />
                                                    </padding>
@@ -170,7 +170,7 @@
                                                       <Insets top="5.0" />
                                                    </padding>
                                                 </TextField>
-                                                <TextField GridPane.rowIndex="11">
+                                                <TextField fx:id="txtQuantidade" GridPane.rowIndex="11">
                                                    <GridPane.margin>
                                                       <Insets left="6.0" right="60.0" />
                                                    </GridPane.margin>
@@ -238,37 +238,37 @@
                                               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                             </rowConstraints>
                                              <children>
-                                                <Label text="CNPJ:">
+                                                <Label fx:id="lbCnpj" text="CNPJ:">
                                                    <padding>
                                                       <Insets left="10.0" />
                                                    </padding>
                                                 </Label>
-                                                <Label layoutX="10.0" layoutY="17.0" text="Razão Social:" GridPane.rowIndex="2">
+                                                <Label fx:id="lbRazaoSocial" layoutX="10.0" layoutY="17.0" text="Razão Social:" GridPane.rowIndex="2">
                                                    <padding>
                                                       <Insets left="10.0" />
                                                    </padding>
                                                 </Label>
-                                                <Label layoutX="10.0" layoutY="77.0" text="Telefone:" GridPane.rowIndex="4">
+                                                <Label fx:id="lbTelefone" layoutX="10.0" layoutY="77.0" text="Telefone:" GridPane.rowIndex="4">
                                                    <padding>
                                                       <Insets left="10.0" />
                                                    </padding>
                                                 </Label>
-                                                <Label layoutX="10.0" layoutY="137.0" text="Email:" GridPane.rowIndex="6">
+                                                <Label fx:id="lbEmail" layoutX="10.0" layoutY="137.0" text="Email:" GridPane.rowIndex="6">
                                                    <padding>
                                                       <Insets left="10.0" />
                                                    </padding>
                                                 </Label>
-                                                <Label layoutX="10.0" layoutY="197.0" text="Cidade:" GridPane.rowIndex="8">
+                                                <Label fx:id="lbCidade" layoutX="10.0" layoutY="197.0" text="Cidade:" GridPane.rowIndex="8">
                                                    <padding>
                                                       <Insets left="10.0" />
                                                    </padding>
                                                 </Label>
-                                                <Label layoutX="10.0" layoutY="257.0" text="Estado:" GridPane.rowIndex="10">
+                                                <Label fx:id="lbEstado" layoutX="10.0" layoutY="257.0" text="Estado:" GridPane.rowIndex="10">
                                                    <padding>
                                                       <Insets left="10.0" />
                                                    </padding>
                                                 </Label>
-                                                <TextField GridPane.rowIndex="1">
+                                                <TextField fx:id="txtCnpj" GridPane.rowIndex="1">
                                                    <GridPane.margin>
                                                       <Insets left="6.0" right="60.0" />
                                                    </GridPane.margin>
@@ -276,7 +276,7 @@
                                                       <Insets top="5.0" />
                                                    </padding>
                                                 </TextField>
-                                                <TextField layoutX="10.0" layoutY="43.0" GridPane.rowIndex="3">
+                                                <TextField fx:id="txtRazaoSocial" layoutX="10.0" layoutY="43.0" GridPane.rowIndex="3">
                                                    <GridPane.margin>
                                                       <Insets left="6.0" right="60.0" />
                                                    </GridPane.margin>
@@ -284,7 +284,7 @@
                                                       <Insets top="5.0" />
                                                    </padding>
                                                 </TextField>
-                                                <TextField layoutX="10.0" layoutY="103.0" GridPane.rowIndex="5">
+                                                <TextField fx:id="txtTelefone" layoutX="10.0" layoutY="103.0" GridPane.rowIndex="5">
                                                    <GridPane.margin>
                                                       <Insets left="6.0" right="60.0" />
                                                    </GridPane.margin>
@@ -292,7 +292,7 @@
                                                       <Insets top="5.0" />
                                                    </padding>
                                                 </TextField>
-                                                <TextField layoutX="10.0" layoutY="163.0" GridPane.rowIndex="7">
+                                                <TextField fx:id="txtEmail" layoutX="10.0" layoutY="163.0" GridPane.rowIndex="7">
                                                    <GridPane.margin>
                                                       <Insets left="6.0" right="60.0" />
                                                    </GridPane.margin>
@@ -300,7 +300,7 @@
                                                       <Insets top="5.0" />
                                                    </padding>
                                                 </TextField>
-                                                <TextField layoutX="10.0" layoutY="223.0" GridPane.rowIndex="9">
+                                                <TextField fx:id="txtCidade" layoutX="10.0" layoutY="223.0" GridPane.rowIndex="9">
                                                    <GridPane.margin>
                                                       <Insets left="6.0" right="60.0" />
                                                    </GridPane.margin>
@@ -308,7 +308,7 @@
                                                       <Insets top="5.0" />
                                                    </padding>
                                                 </TextField>
-                                                <TextField layoutX="10.0" layoutY="283.0" GridPane.rowIndex="11">
+                                                <TextField fx:id="txtEstado" layoutX="10.0" layoutY="283.0" GridPane.rowIndex="11">
                                                    <GridPane.margin>
                                                       <Insets left="6.0" right="60.0" />
                                                    </GridPane.margin>
@@ -331,22 +331,22 @@
                   </TabPane>
                   <HBox prefHeight="76.0" prefWidth="331.0">
                      <children>
-                        <Button fx:id="btnCadastrar" mnemonicParsing="false" text="Cadastrar">
+                        <Button fx:id="btnCadastrar" mnemonicParsing="false" onAction="#onBtnCadastrar" text="Cadastrar">
+                           <HBox.margin>
+                              <Insets left="10.0" right="10.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Button fx:id="btnExcluir" mnemonicParsing="false" onAction="#onBtnExcluir" text="Excluir">
                            <HBox.margin>
                               <Insets right="10.0" />
                            </HBox.margin>
                         </Button>
-                        <Button fx:id="btnExcluir" mnemonicParsing="false" text="Excluir">
+                        <Button fx:id="btnConsultar" mnemonicParsing="false" onAction="#onBtnConsultar" text="Consultar">
                            <HBox.margin>
                               <Insets right="10.0" />
                            </HBox.margin>
                         </Button>
-                        <Button fx:id="btnConsultar" mnemonicParsing="false" text="Consultar">
-                           <HBox.margin>
-                              <Insets right="10.0" />
-                           </HBox.margin>
-                        </Button>
-                        <Button fx:id="btnListarMedicamentos" mnemonicParsing="false" text="Listar Medicamentos" />
+                        <Button fx:id="btnListarMedicamentos" mnemonicParsing="false" onAction="#onBtnListarMedicamentos" text="Listar Medicamentos" />
                      </children>
                      <VBox.margin>
                         <Insets top="20.0" />
@@ -355,49 +355,60 @@
                         <Insets bottom="25.0" />
                      </padding>
                   </HBox>
-                  <Label text="Produzido por @Leticia_Rezendey" />
+                  <Label text="Produzido por @Leticia_Rezendey">
+                     <padding>
+                        <Insets left="10.0" />
+                     </padding></Label>
                </children>
             </VBox>
             <VBox prefHeight="628.0" prefWidth="595.0">
                <children>
-                  <TableView prefHeight="286.0" prefWidth="585.0">
+                  <TableView prefHeight="356.0" prefWidth="580.0">
                     <columns>
-                      <TableColumn prefWidth="45.0" text="Código" />
-                      <TableColumn prefWidth="50.0" text="Nome" />
-                        <TableColumn prefWidth="65.0" text="Descrição" />
-                        <TableColumn prefWidth="85.0" text="Principio Ativo" />
-                        <TableColumn prefWidth="83.0" text="Data Validade" />
-                        <TableColumn prefWidth="74.0" text="Quantidade" />
-                        <TableColumn prefWidth="47.0" text="Preço" />
-                        <TableColumn prefWidth="61.0" text="Controlado" />
-                        <TableColumn prefWidth="70.0" text="Fornecedor" />
+                      <TableColumn fx:id="codigoColumn" prefWidth="45.0" text="Código" />
+                      <TableColumn fx:id="nomeColumn" prefWidth="50.0" text="Nome" />
+                        <TableColumn fx:id="descricaoColumn" prefWidth="65.0" text="Descrição" />
+                        <TableColumn fx:id="principioAtivoColumn" prefWidth="85.0" text="Principio Ativo" />
+                        <TableColumn fx:id="dataValidadeColumn" prefWidth="83.0" text="Data Validade" />
+                        <TableColumn fx:id="quantidadeColumn" prefWidth="74.0" text="Quantidade" />
+                        <TableColumn fx:id="precoColumn" prefWidth="47.0" text="Preço" />
+                        <TableColumn fx:id="controladoColumn" prefWidth="61.0" text="Controlado" />
+                        <TableColumn fx:id="fornecedorColumn" prefWidth="70.0" text="Fornecedor" />
                     </columns>
                      <opaqueInsets>
                         <Insets />
                      </opaqueInsets>
                      <padding>
-                        <Insets top="10.0" />
+                        <Insets top="5.0" />
                      </padding>
                      <VBox.margin>
                         <Insets right="5.0" />
                      </VBox.margin>
                   </TableView>
-                  <Label text="O que você deseja buscar?">
+                  <Label text="O que você deseja buscar?" textFill="#bf2626">
                      <font>
-                        <Font name="Bodoni MT Bold" size="20.0" />
+                        <Font name="System Italic" size="20.0" />
                      </font>
+                     <VBox.margin>
+                        <Insets top="20.0" />
+                     </VBox.margin>
                   </Label>
-                  <HBox prefHeight="269.0" prefWidth="523.0">
+                  <HBox prefHeight="93.0" prefWidth="585.0">
                      <children>
-                        <Button contentDisplay="TOP" mnemonicParsing="false" text="Filtrar &lt;= 30 dias" textOverrun="WORD_ELLIPSIS">
-                           <HBox.margin>
-                              <Insets right="5.0" />
-                           </HBox.margin>
-                        </Button>
-                        <Button mnemonicParsing="false" text="Estoque &lt;= 5 uni" />
-                        <Button mnemonicParsing="false" text="Total Estoque por Fornecedor" />
-                        <Button mnemonicParsing="false" text="Remédios Controlados" />
-                        <Button mnemonicParsing="false" text="Remédios não Controlados" />
+                        <HBox prefHeight="93.0" prefWidth="542.0">
+                           <children>
+                              <Button fx:id="btnEstoque5Uni" mnemonicParsing="false" text="Estoque &lt; 5 uni">
+                                 <HBox.margin>
+                                    <Insets left="20.0" top="25.0" />
+                                 </HBox.margin>
+                              </Button>
+                              <Button fx:id="btnFiltrar30dias" contentDisplay="TOP" mnemonicParsing="false" text="Filtrar &lt;= 30 dias" textOverrun="WORD_ELLIPSIS">
+                                 <HBox.margin>
+                                    <Insets left="20.0" top="25.0" />
+                                 </HBox.margin>
+                              </Button>
+                           </children>
+                        </HBox>
                      </children>
                   </HBox>
                </children>

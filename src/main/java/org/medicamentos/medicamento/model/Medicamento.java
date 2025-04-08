@@ -2,6 +2,7 @@ package org.medicamentos.medicamento.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Date;
 
 public class Medicamento {
     private  String codigo;
@@ -24,6 +25,29 @@ public class Medicamento {
         this.preco = preco;
         this.controlado = controlado;
         this.fornecedor = fornecedor;
+    }
+
+    public Medicamento() {
+
+    }
+
+    public Medicamento(String codigo,
+                       String nome,
+                       String descricao,
+                       String principioAtivo,
+                       Date dataValidade,
+                       int quantidade,
+                       double preco) {
+    }
+
+    public Medicamento(String codigo,
+                       String nome,
+                       String descricao,
+                       String principioAtivo,
+                       Date dataValidade,
+                       int quantidade,
+                       double preco,
+                       boolean controlado) {
     }
 
     public String getCodigo() {
