@@ -19,7 +19,7 @@
 <?import javafx.scene.paint.Stop?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="638.0" prefWidth="951.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.medicamentos.medicamento.controller.MainController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="638.0" prefWidth="951.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.medicamentos.medicamento.controller.MainController">
    <children>
       <HBox prefHeight="650.0" prefWidth="941.0">
          <children>
@@ -397,12 +397,12 @@
                      <children>
                         <HBox prefHeight="93.0" prefWidth="542.0">
                            <children>
-                              <Button fx:id="btnEstoque5Uni" mnemonicParsing="false" text="Estoque &lt; 5 uni">
+                              <Button fx:id="btnEstoque5Uni" mnemonicParsing="false" onAction="#onBtnEstoque5Uni" text="Estoque &lt; 5 uni">
                                  <HBox.margin>
                                     <Insets left="20.0" top="25.0" />
                                  </HBox.margin>
                               </Button>
-                              <Button fx:id="btnFiltrar30dias" contentDisplay="TOP" mnemonicParsing="false" text="Filtrar &lt;= 30 dias" textOverrun="WORD_ELLIPSIS">
+                              <Button fx:id="btnFiltrar30dias" contentDisplay="TOP" mnemonicParsing="false" onAction="#onBtnFiltrar30dias" text="Filtrar &lt;= 30 dias" textOverrun="WORD_ELLIPSIS">
                                  <HBox.margin>
                                     <Insets left="20.0" top="25.0" />
                                  </HBox.margin>

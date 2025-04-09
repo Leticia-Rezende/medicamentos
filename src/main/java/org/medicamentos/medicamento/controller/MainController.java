@@ -1,11 +1,21 @@
 package org.medicamentos.medicamento.controller;
 
+import javafx.beans.Observable;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import org.medicamentos.medicamento.model.Fornecedor;
 import org.medicamentos.medicamento.model.Medicamento;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
 
@@ -16,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class MainController implements Initializable {
@@ -23,6 +34,11 @@ public class MainController implements Initializable {
     private List<Fornecedor> fornecedorList = new ArrayList<>();
     private Medicamento medicamento;
     private Fornecedor fornecedor;
+
+    private static final String ARQUIVO_DADOS = "dadosFarmacia.csv";
+    private static final String DELIMITADOR = ";";
+    private ObservableList<Medicamento> medicamentos = FXCollections.observableArrayList();
+
 
     // ************
     // Medicamento
@@ -106,14 +122,19 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        this.medicamentoList = new ArrayList<>();
+        this.fornecedorList = new ArrayList<>();
+        this.medicamento = new Medicamento();
+        this.fornecedor = new Fornecedor();
+
         this.btnCadastrar.setDisable(false);
         this.btnExcluir.setDisable(true);
         this.btnConsultar.setDisable(true);
         this.btnListarMedicamentos.setDisable(true);
         this.btnEstoque5Uni.setDisable(true);
         this.btnFiltrar30dias.setDisable(true);
-        this.medicamento = new Medicamento();
-        this.fornecedor = new Fornecedor();
+
+
     }
 
     private void atualizarTabela() {
@@ -121,31 +142,30 @@ public class MainController implements Initializable {
         medicamentosTableView.getItems().addAll(medicamentoList);
     }
 
-    @FXML
-    public void onBtnCadastrar(){
-
-    }
-
-    @FXML
-    private void limparCampos() {
-        this.txtCodigo.setText("");
-        this.txtNome.setText("");
-        this.txtDescricao.setText("");
-        this.txtPrincipioAtivo.setText("");
-        this.txtDataValidade.setText("");
-        this.txtQuantidade.setText("");
-        this.txtPreco.setText("");
-        this.txtCnpj.setText("");
-        this.txtRazaoSocial.setText("");
-        this.txtTelefone.setText("");
-        this.txtEmail.setText("");
-        this.txtCidade.setText("");
-        this.txtEstado.setText("");
-    }
 
 
     //************
-    // De acordo com o medicamento selecionado, o medicamento é excluido e aparece a mensagem
+    // Ações dos botões
+
+    @FXML
+    public void onBtnCadastrar() {
+        if (this.medicamento != null) {
+            lerFormulario();
+
+            if (codigoMedicamentoJaExiste(this.medicamento.getCodigo())) {
+                System.out.println("Erro: Já existe um medicamento com o código " + this.medicamento.getCodigo());
+                return;
+            }
+
+            this.medicamentoList.add(this.medicamento);
+            updateTableView(medicamentoList);
+        }
+        this.btnExcluir.setDisable(false);
+        this.btnConsultar.setDisable(false);
+        this.btnListarMedicamentos.setDisable(false);
+
+    }
+
     @FXML
     public void onBtnExcluir() {
         Medicamento medicamentoSelecionado = medicamentosTableView.getSelectionModel().getSelectedItem();
@@ -157,6 +177,7 @@ public class MainController implements Initializable {
             resultadoLabel.setText("Selecione um medicamento para excluir.");
         }
     }
+
     //********
     // Consulta os medicamentos
     @FXML
@@ -179,45 +200,144 @@ public class MainController implements Initializable {
         } else {
             resultadoLabel.setText("Medicamento não encontrado.");
         }
+
+    }
+        @FXML
+        public void onBtnListarMedicamentos () {
+            atualizarTabela();
+            resultadoLabel.setText("Medicamentos listados.");
+        }
+
+        // Botões de filtragem de 5 e 30
+        @FXML
+        public void onBtnEstoque5Uni () {
+            List<Medicamento> estoqueBaixo5dias = (List<Medicamento>) medicamentoList.stream();
+            atualizarTabelaFiltrada(estoqueBaixo5dias);
+            resultadoLabel.setText("Medicamentos com estoque baixo listados.");
+        }
+
+        @FXML
+        public void onBtnFiltrar30dias () {
+            LocalDate diaAtual = LocalDate.now();
+            LocalDate diaLimiteEmDias = diaAtual.plusDays(30);
+
+            List<Medicamento> medicamentosCom30Dias = medicamentoList.stream()
+                    .filter(medicamento1 -> medicamento.getDataValidade().isBefore(diaLimiteEmDias) &&
+                            medicamento.getDataValidade().isAfter(diaAtual))
+                    .collect(Collectors.toList());
+            updateTableView(medicamentosCom30Dias);
+
+        }
+
+        private void atualizarTabelaFiltrada (List < Medicamento > medicamentos) {
+            medicamentosTableView.getItems().clear();
+            medicamentosTableView.getItems().addAll(medicamentos);
+        }
+
+        public List<Medicamento> filtrarMedicamentos30dias (List < Medicamento > medicamentos) {
+            return medicamentos.stream()
+                    .filter(m -> m.getDataValidade().isBefore(LocalDate.now().plusDays(30)))
+                    .collect(Collectors.toList());
+        }
+        public List<Medicamento> estoqueBaixo5dias (List < Medicamento > medicamentos) {
+            return medicamentos.stream()
+                    .filter(m -> m.getQuantidadeEstoque() < 5)
+                    .collect(Collectors.toList());
+
+        }
+
+        public void updateTableView (List < Medicamento > medicamentos) {
+            ObservableList<Medicamento> observableList = FXCollections.observableArrayList(medicamentos);
+
+        }
+    private void salvarDados() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(ARQUIVO_DADOS))) {
+            for (Medicamento medicamento : medicamentos) {
+                writer.write(String.join(DELIMITADOR,
+                        medicamento.getCodigo(),
+                        medicamento.getNome(),
+                        medicamento.getDescricao(),
+                        medicamento.getPrincipioAtivo(),
+                        medicamento.getDataValidade().format(DateTimeFormatter.ISO_DATE),
+                        String.valueOf(medicamento.getQuantidadeEstoque()),
+                        medicamento.getPreco().toString(),
+                        String.valueOf(medicamento.isControlado()),
+                        medicamento.getFornecedor().getCnpj() // Salvar apenas o CNPJ para simplificar
+                ));
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.err.println("Erro ao salvar dados no arquivo: " + e.getMessage());
+        }
+
+    }
+    public class Validador {
+
+        private static final Pattern CODIGO_PATTERN = Pattern.compile("[a-zA-Z0-9]{7}");
+        private static final Pattern CNPJ_PATTERN = Pattern.compile("^\\d{2}\\.\\d{3}\\.\\d{3}/\\d{4}-\\d{2}$");
+
+        public static boolean validarCodigo(String codigo) {
+            return codigo != null && CODIGO_PATTERN.matcher(codigo).matches();
+        }
+
+        public static boolean validarNome(String nome) {
+            return nome != null && !nome.trim().isEmpty() && nome.trim().length() >= 3; // Exemplo de tamanho mínimo
+        }
+
+        // TODO: Implementar validação de CNPJ com dígito verificador
+        public static boolean validarCNPJ(String cnpj) {
+            return cnpj != null && CNPJ_PATTERN.matcher(cnpj).matches();
+        }
     }
 
-    //**********
-    // Lista os medicamentos
+    private boolean codigoMedicamentoJaExiste(String codigo) {
+        return medicamentoList.stream().anyMatch(medicamento -> medicamento.getCodigo().equals(codigo));
+    }
+
+    private boolean cnpjFornecedorJaExiste(String cnpj) {
+        return fornecedorList.stream().anyMatch(fornecedor -> fornecedor.getCnpj().equals(cnpj));
+    }
+
+    public Medicamento lerFormulario() {
+        this.medicamento.setCodigo(this.txtCodigo.getText());
+        this.medicamento.setNome(this.txtNome.getText());
+        this.medicamento.setDescricao(this.txtDescricao.getText());
+        this.medicamento.setPrincipioAtivo(this.txtPrincipioAtivo.getText());
+        this.medicamento.setDataValidade(LocalDate.parse(this.txtDataValidade.getText()));
+        this.medicamento.setQuantidadeEstoque(Integer.parseInt(this.txtQuantidade.getText()));
+        String precoString = this.txtPreco.getText();
+        BigDecimal preco = new BigDecimal(precoString);
+        this.medicamento.setPreco(preco);
+        this.medicamento.setControlado(Boolean.parseBoolean(this.txtControlado.getText()));
+
+        String Fornecedor = this.txtFornecedor.getText();
+
+        if (fornecedor == null) {
+            return null;
+        } else {
+            this.medicamento.setFornecedor(fornecedor);
+        }
+
+        return this.medicamento;
+    }
+
     @FXML
-    public void onBtnListarMedicamentos() {
-        atualizarTabela();
-        resultadoLabel.setText("Medicamentos listados.");
-
+    private void limparCampos() {
+        this.txtCodigo.setText("");
+        this.txtNome.setText("");
+        this.txtDescricao.setText("");
+        this.txtPrincipioAtivo.setText("");
+        this.txtDataValidade.setText("");
+        this.txtQuantidade.setText("");
+        this.txtPreco.setText("");
+        this.txtCnpj.setText("");
+        this.txtRazaoSocial.setText("");
+        this.txtTelefone.setText("");
+        this.txtEmail.setText("");
+        this.txtCidade.setText("");
+        this.txtEstado.setText("");
     }
 
-    @FXML
-    public void onBtnEstoque5Uni() {
-        List<Medicamento> filtrados = estoqueBaixo5dias(medicamentoList);
-        atualizarTabelaFiltrada(filtrados);
-        resultadoLabel.setText("Medicamentos com estoque baixo listados.");
-    }
-
-    @FXML
-    public void onBtnFiltrar30dias() {
-        List<Medicamento> filtrados = filtrarMedicamentos30dias(medicamentoList);
-        atualizarTabelaFiltrada(filtrados);
-        resultadoLabel.setText("Medicamentos próximos da validade listados.");
-    }
-
-    private void atualizarTabelaFiltrada(List<Medicamento> medicamentos) {
-        medicamentosTableView.getItems().clear();
-        medicamentosTableView.getItems().addAll(medicamentos);
-    }
-
-    public List<Medicamento> filtrarMedicamentos30dias(List<Medicamento> medicamentos) {
-        return medicamentos.stream()
-                .filter(m -> m.getDataValidade().isBefore(LocalDate.now().plusDays(30)))
-                .collect(Collectors.toList());
-    }
-    public List<Medicamento> estoqueBaixo5dias(List<Medicamento> medicamentos) {
-        return medicamentos.stream()
-                .filter(m -> m.getQuantidadeEstoque() < 5)
-                .collect(Collectors.toList());
-
-    }
 }
+
+
