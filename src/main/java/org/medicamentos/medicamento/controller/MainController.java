@@ -14,18 +14,19 @@ import org.medicamentos.medicamento.model.Fornecedor;
 import org.medicamentos.medicamento.model.Medicamento;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -163,6 +164,9 @@ public class MainController implements Initializable {
         this.btnExcluir.setDisable(false);
         this.btnConsultar.setDisable(false);
         this.btnListarMedicamentos.setDisable(false);
+        limparCampos();
+        lerDadosMedicamentos();
+        gravarMedicamentosEmArquivo(medicamentoList);
 
     }
 
@@ -200,6 +204,7 @@ public class MainController implements Initializable {
         } else {
             resultadoLabel.setText("Medicamento não encontrado.");
         }
+        lerDadosMedicamentos();
 
     }
         @FXML
@@ -250,27 +255,6 @@ public class MainController implements Initializable {
             ObservableList<Medicamento> observableList = FXCollections.observableArrayList(medicamentos);
 
         }
-    private void salvarDados() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(ARQUIVO_DADOS))) {
-            for (Medicamento medicamento : medicamentos) {
-                writer.write(String.join(DELIMITADOR,
-                        medicamento.getCodigo(),
-                        medicamento.getNome(),
-                        medicamento.getDescricao(),
-                        medicamento.getPrincipioAtivo(),
-                        medicamento.getDataValidade().format(DateTimeFormatter.ISO_DATE),
-                        String.valueOf(medicamento.getQuantidadeEstoque()),
-                        medicamento.getPreco().toString(),
-                        String.valueOf(medicamento.isControlado()),
-                        medicamento.getFornecedor().getCnpj() // Salvar apenas o CNPJ para simplificar
-                ));
-                writer.newLine();
-            }
-        } catch (IOException e) {
-            System.err.println("Erro ao salvar dados no arquivo: " + e.getMessage());
-        }
-
-    }
     public class Validador {
 
         private static final Pattern CODIGO_PATTERN = Pattern.compile("[a-zA-Z0-9]{7}");
@@ -319,6 +303,91 @@ public class MainController implements Initializable {
         }
 
         return this.medicamento;
+    }
+    public List<Medicamento> lerDadosMedicamentos() {
+        File file = new File("dadosFarmacia.txt");
+
+        if (!file.exists() || file.length() == 0) {
+            System.out.println("O arquivo 'dadosFarmacia.txt' não existe ou está vazio.");
+            return Collections.emptyList();
+        }
+
+        List<Medicamento> medicamentos = new ArrayList<>();
+
+        try {
+            medicamentos = Files.lines(Paths.get("dadosFarmacia.txt"))
+                    .map(linha -> linha.split(","))
+                    .filter(dados -> dados.length == 9)
+                    .map(dados -> {
+                        try {
+                            String codigo = dados[0];
+                            String nome = dados[1];
+                            String descricao = dados[2];
+                            String pricipioAtivo = dados[3];
+                            LocalDate dataValidade = LocalDate.parse(dados[4]);
+                            int quantidadeEstoque = Integer.parseInt(dados[5]);
+                            BigDecimal preco = new BigDecimal(dados[6]);
+                            boolean controlado = Boolean.parseBoolean(dados[7]);
+                            String fornecedorNome = dados[8];
+
+                            Medicamento medicamento = new Medicamento();
+                            medicamento.setCodigo(codigo);
+                            medicamento.setNome(nome);
+                            medicamento.setDescricao(descricao);
+                            medicamento.setPrincipioAtivo(pricipioAtivo);
+                            medicamento.setDataValidade(dataValidade);
+                            medicamento.setQuantidadeEstoque(quantidadeEstoque);
+                            medicamento.setPreco(preco);
+                            medicamento.setControlado(controlado);
+                            return medicamento;
+                        } catch (Exception e) {
+                            System.err.println("Erro ao converter dados da linha: " + String.join(",", dados));
+                            return null;
+                        }
+                    })
+                    .filter(medicamento -> medicamento != null)
+                    .collect(Collectors.toList());
+
+
+            medicamentoList.addAll(medicamentos);
+
+
+            medicamentos.forEach(medicamento ->
+                    System.out.printf("Código: %s, Nome: %s, Descrição: %s, Princípio Ativo: %s, Data de Validade: %s, " +
+                                    "Quantidade em Estoque: %d, Preço: %.2f, Controlado: %b, Fornecedor: %s%n",
+                            medicamento.getCodigo(), medicamento.getNome(), medicamento.getDescricao(),
+                            medicamento.getPrincipioAtivo(), medicamento.getDataValidade(), medicamento.getQuantidadeEstoque(),
+                            medicamento.getPreco(), medicamento.isControlado(), medicamento.getFornecedor() != null ? medicamento.getFornecedor().getRazaoSocial() : "N/A")
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return medicamentos;
+    }
+    public void gravarMedicamentosEmArquivo(List<Medicamento> medicamentos) {
+        DecimalFormat decimalFormat = new DecimalFormat("#.00");
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("medicamentos.txt"))) {
+            for (Medicamento medicamento : medicamentos) {
+                String linha = String.join(",",
+                        medicamento.getCodigo(),
+                        medicamento.getNome(),
+                        medicamento.getDescricao(),
+                        medicamento.getPrincipioAtivo(),
+                        medicamento.getDataValidade().toString(),
+                        String.valueOf(medicamento.getQuantidadeEstoque()),
+                        decimalFormat.format(medicamento.getPreco()),
+                        String.valueOf(medicamento.isControlado()),
+                        medicamento.getFornecedor() != null
+                                ? medicamento.getFornecedor().getRazaoSocial() : "");
+                writer.write(linha);
+                writer.newLine();
+            }
+            System.out.println("Medicamentos gravados com sucesso em 'medicamentos.txt'.");
+        } catch (IOException e) {
+            System.err.println("Erro ao gravar medicamentos em arquivo: " + e.getMessage());
+        }
     }
 
     @FXML
