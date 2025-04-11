@@ -1,6 +1,5 @@
 package org.medicamentos.medicamento.controller;
 
-import javafx.beans.Observable;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -23,22 +22,17 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
 
 public class MainController implements Initializable {
     private List<Medicamento> medicamentoList = new ArrayList<>();
     private List<Fornecedor> fornecedorList = new ArrayList<>();
     private Medicamento medicamento;
     private Fornecedor fornecedor;
-
-    private static final String ARQUIVO_DADOS = "dadosFarmacia.csv";
-    private static final String DELIMITADOR = ";";
-    private ObservableList<Medicamento> medicamentos = FXCollections.observableArrayList();
 
 
     // ************
@@ -81,7 +75,7 @@ public class MainController implements Initializable {
     @FXML
     private TableColumn<Medicamento, Boolean> controladoColumn;
     @FXML
-    private TableColumn<Medicamento, Fornecedor> fornecedorColumn;
+    private TableColumn<Medicamento, String> fornecedorColumn;
 
     @FXML
     private Label resultadoLabel;
@@ -105,13 +99,23 @@ public class MainController implements Initializable {
     // ***********
     // Botões
     @FXML
-    private Button btnCadastrar;
+    private Button btnCadastrarMedicamento;
     @FXML
-    private Button btnExcluir;
+    private Button btnExcluirMedicamento;
     @FXML
-    private Button btnConsultar;
+    private Button btnConsultarMedicamento;
     @FXML
     private Button btnListarMedicamentos;
+
+    @FXML
+    private Button btnCadastrarFornecedor;
+
+    @FXML
+    private Button btnExcluirFornecedor;
+
+    @FXML
+    private Button btnConsultarFornecedor;
+
 
     //**************
     // Botões para consultar informações por filtro
@@ -128,12 +132,36 @@ public class MainController implements Initializable {
         this.medicamento = new Medicamento();
         this.fornecedor = new Fornecedor();
 
-        this.btnCadastrar.setDisable(false);
-        this.btnExcluir.setDisable(true);
-        this.btnConsultar.setDisable(true);
+        this.btnCadastrarMedicamento.setDisable(false);
+        this.btnExcluirMedicamento.setDisable(true);
+        this.btnConsultarMedicamento.setDisable(true);
         this.btnListarMedicamentos.setDisable(true);
+
         this.btnEstoque5Uni.setDisable(true);
         this.btnFiltrar30dias.setDisable(true);
+
+        this.btnExcluirFornecedor.setDisable(true);
+        this.btnConsultarFornecedor.setDisable(true);
+
+        codigoColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getCodigo()));
+        nomeColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getNome()));
+        descricaoColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getDescricao()));
+        principioAtivoColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPrincipioAtivo()));
+        dataValidadeColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getDataValidade()));
+        quantidadeColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getQuantidadeEstoque()).asObject());
+        precoColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getPreco()));
+        controladoColumn.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().isControlado()).asObject());
+
+        fornecedorColumn.setCellValueFactory(cellData -> {
+            Fornecedor fornecedor = cellData.getValue().getFornecedor();
+            return new SimpleStringProperty(fornecedor != null ? fornecedor.getRazaoSocial() : "");
+        });
+
+        List<Fornecedor> fornecedoresCarregados = lerDadosDoArquivoFornecedores();
+        fornecedorList.addAll(fornecedoresCarregados);
+
+        List<Medicamento> medicamentosCarregados = lerDadosDoArquivoMedicamentos();
+        medicamentoList.addAll(medicamentosCarregados);
 
 
     }
@@ -143,35 +171,53 @@ public class MainController implements Initializable {
         medicamentosTableView.getItems().addAll(medicamentoList);
     }
 
-
-
     //************
-    // Ações dos botões
+    // Ações dos botões Medicamento e Fornecedores
 
     @FXML
-    public void onBtnCadastrar() {
+    public void onBtnCadastrarMedicamento() {
+        this.medicamento = new Medicamento();
         if (this.medicamento != null) {
-            lerFormulario();
+            lerDadosMedicamentos();
 
             if (codigoMedicamentoJaExiste(this.medicamento.getCodigo())) {
                 System.out.println("Erro: Já existe um medicamento com o código " + this.medicamento.getCodigo());
                 return;
             }
-
             this.medicamentoList.add(this.medicamento);
             updateTableView(medicamentoList);
         }
-        this.btnExcluir.setDisable(false);
-        this.btnConsultar.setDisable(false);
+        this.btnExcluirMedicamento.setDisable(false);
+        this.btnConsultarMedicamento.setDisable(false);
         this.btnListarMedicamentos.setDisable(false);
         limparCampos();
         lerDadosMedicamentos();
         gravarMedicamentosEmArquivo(medicamentoList);
 
     }
-
     @FXML
-    public void onBtnExcluir() {
+    public void onBtnCadastrarFornecedor() {
+        if (this.fornecedor != null) {
+            lerFormulario();
+
+            if (razaoSocialFornecedorJaExiste(this.fornecedor.getRazaoSocial())) {
+                System.out.println("Erro: Já existe um fornecedor com essa Razão Social " + this.fornecedor.getRazaoSocial());
+                return;
+            }
+
+            this.fornecedorList.add(this.fornecedor);
+
+        }
+        this.btnExcluirMedicamento.setDisable(false);
+        this.btnConsultarMedicamento.setDisable(false);
+
+        limparCampos();
+        lerDadosFornecedor();
+
+
+    }
+    @FXML
+    public void onBtnExcluirMedicamento() {
         Medicamento medicamentoSelecionado = medicamentosTableView.getSelectionModel().getSelectedItem();
         if (medicamentoSelecionado != null) {
             medicamentoList.remove(medicamentoSelecionado);
@@ -181,11 +227,22 @@ public class MainController implements Initializable {
             resultadoLabel.setText("Selecione um medicamento para excluir.");
         }
     }
+    @FXML
+    public void onBtnExcluirFornecedor() {
+        Fornecedor fornecedoresSelecionado = FornecedorTableView.getSelectionModel().getSelectedItem();
+        if (fornecedoresSelecionado != null) {
+            fornecedorList.remove(fornecedoresSelecionado);
+            atualizarTabela();
+            resultadoLabel.setText("Fornecedor excluído com sucesso!");
+        } else {
+            resultadoLabel.setText("Selecione um fornecedor para excluir.");
+        }
+    }
 
     //********
     // Consulta os medicamentos
     @FXML
-    public void onBtnConsultar() {
+    public void onBtnConsultarMedicamento() {
         String codigoConsulta = txtCodigo.getText();
         Medicamento medicamentoEncontrado = medicamentoList.stream()
                 .filter(medicamento -> medicamento.getCodigo().equals(codigoConsulta))
@@ -207,54 +264,79 @@ public class MainController implements Initializable {
         lerDadosMedicamentos();
 
     }
-        @FXML
-        public void onBtnListarMedicamentos () {
-            atualizarTabela();
-            resultadoLabel.setText("Medicamentos listados.");
+    @FXML
+    public void onBtnConsultarFornecedor() {
+        String razaoSocialConsulta = txtRazaoSocial.getText();
+        Fornecedor razaoSocialEncontrado = medicamentoList.stream()
+                .filter(medicamento -> fornecedor.getRazaoSocial().equals(razaoSocialConsulta))
+                .findFirst()
+                .orElse(null).getFornecedor();
+
+        if (razaoSocialEncontrado != null) {
+            txtCnpj.setText(razaoSocialEncontrado.getCnpj());
+            txtTelefone.setText(razaoSocialEncontrado.getTelefone());
+            txtEmail.setText(razaoSocialEncontrado.getEmail());
+            txtCidade.setText(razaoSocialEncontrado.getCidade());
+            txtEstado.setText(razaoSocialEncontrado.getEstado());
+
+            resultadoLabel.setText("Fornecedor  encontrado.");
+        } else {
+            resultadoLabel.setText("Fornecedor não encontrado.");
         }
+        lerDadosFornecedor();
 
-        // Botões de filtragem de 5 e 30
-        @FXML
-        public void onBtnEstoque5Uni () {
-            List<Medicamento> estoqueBaixo5dias = (List<Medicamento>) medicamentoList.stream();
-            atualizarTabelaFiltrada(estoqueBaixo5dias);
-            resultadoLabel.setText("Medicamentos com estoque baixo listados.");
-        }
+    }
 
-        @FXML
-        public void onBtnFiltrar30dias () {
-            LocalDate diaAtual = LocalDate.now();
-            LocalDate diaLimiteEmDias = diaAtual.plusDays(30);
+    @FXML
+    public void onBtnListarMedicamentos() {
+        atualizarTabela();
+        resultadoLabel.setText("Medicamentos listados.");
+    }
 
-            List<Medicamento> medicamentosCom30Dias = medicamentoList.stream()
-                    .filter(medicamento1 -> medicamento.getDataValidade().isBefore(diaLimiteEmDias) &&
-                            medicamento.getDataValidade().isAfter(diaAtual))
-                    .collect(Collectors.toList());
-            updateTableView(medicamentosCom30Dias);
+    // Botões de filtragem de 5 e 30
+    @FXML
+    public void onBtnEstoque5Uni() {
+        List<Medicamento> estoqueBaixo5dias = (List<Medicamento>) medicamentoList.stream();
+        atualizarTabelaFiltrada(estoqueBaixo5dias);
+        resultadoLabel.setText("Medicamentos com estoque baixo listados.");
+    }
 
-        }
+    @FXML
+    public void onBtnFiltrar30dias() {
+        LocalDate diaAtual = LocalDate.now();
+        LocalDate diaLimiteEmDias = diaAtual.plusDays(30);
 
-        private void atualizarTabelaFiltrada (List < Medicamento > medicamentos) {
-            medicamentosTableView.getItems().clear();
-            medicamentosTableView.getItems().addAll(medicamentos);
-        }
+        List<Medicamento> medicamentosCom30Dias = medicamentoList.stream()
+                .filter(medicamento1 -> medicamento.getDataValidade().isBefore(diaLimiteEmDias) &&
+                        medicamento.getDataValidade().isAfter(diaAtual))
+                .collect(Collectors.toList());
+        updateTableView(medicamentosCom30Dias);
 
-        public List<Medicamento> filtrarMedicamentos30dias (List < Medicamento > medicamentos) {
-            return medicamentos.stream()
-                    .filter(m -> m.getDataValidade().isBefore(LocalDate.now().plusDays(30)))
-                    .collect(Collectors.toList());
-        }
-        public List<Medicamento> estoqueBaixo5dias (List < Medicamento > medicamentos) {
-            return medicamentos.stream()
-                    .filter(m -> m.getQuantidadeEstoque() < 5)
-                    .collect(Collectors.toList());
+    }
 
-        }
+    private void atualizarTabelaFiltrada(List<Medicamento> medicamentos) {
+        medicamentosTableView.getItems().clear();
+        medicamentosTableView.getItems().addAll(medicamentos);
+    }
 
-        public void updateTableView (List < Medicamento > medicamentos) {
-            ObservableList<Medicamento> observableList = FXCollections.observableArrayList(medicamentos);
+    public List<Medicamento> filtrarMedicamentos30dias(List<Medicamento> medicamentos) {
+        return medicamentos.stream()
+                .filter(m -> m.getDataValidade().isBefore(LocalDate.now().plusDays(30)))
+                .collect(Collectors.toList());
+    }
 
-        }
+    public List<Medicamento> estoqueBaixo5dias(List<Medicamento> medicamentos) {
+        return medicamentos.stream()
+                .filter(m -> m.getQuantidadeEstoque() < 5)
+                .collect(Collectors.toList());
+
+    }
+
+    public void updateTableView(List<Medicamento> medicamentos) {
+        ObservableList<Medicamento> observableList = FXCollections.observableArrayList(medicamentos);
+
+    }
+
     public class Validador {
 
         private static final Pattern CODIGO_PATTERN = Pattern.compile("[a-zA-Z0-9]{7}");
@@ -278,9 +360,10 @@ public class MainController implements Initializable {
         return medicamentoList.stream().anyMatch(medicamento -> medicamento.getCodigo().equals(codigo));
     }
 
-    private boolean cnpjFornecedorJaExiste(String cnpj) {
-        return fornecedorList.stream().anyMatch(fornecedor -> fornecedor.getCnpj().equals(cnpj));
+    private boolean razaoSocialFornecedorJaExiste(String razaoSocial) {
+        return fornecedorList.stream().anyMatch(fornecedor -> fornecedor.getRazaoSocial().equals(razaoSocial));
     }
+
 
     public Medicamento lerFormulario() {
         this.medicamento.setCodigo(this.txtCodigo.getText());
@@ -304,6 +387,7 @@ public class MainController implements Initializable {
 
         return this.medicamento;
     }
+
     public List<Medicamento> lerDadosMedicamentos() {
         File file = new File("dadosFarmacia.txt");
 
@@ -316,7 +400,7 @@ public class MainController implements Initializable {
 
         try {
             medicamentos = Files.lines(Paths.get("dadosFarmacia.txt"))
-                    .map(linha -> linha.split(","))
+                    .map(linha -> linha.split(";"))
                     .filter(dados -> dados.length == 9)
                     .map(dados -> {
                         try {
@@ -365,12 +449,137 @@ public class MainController implements Initializable {
 
         return medicamentos;
     }
+
+    private Fornecedor lerDadosFornecedor() {
+        this.fornecedor.setCnpj(this.txtCnpj.getText());
+        if (Validador.validarCNPJ(this.fornecedor.getCnpj())) {
+            showAlert("CNPJ inválido", "Por favor, digite um CNPJ valído");
+            return null;
+        }
+        this.fornecedor.setRazaoSocial(this.txtRazaoSocial.getText());
+        if (this.fornecedor.getRazaoSocial().isEmpty()) {
+            showAlert("Nome inválido", "A Razão Social não pode ser vazia");
+            return null;
+        }
+        this.fornecedor.setTelefone(this.txtTelefone.getText());
+        this.fornecedor.setCidade(this.txtCidade.getText());
+        this.fornecedor.setEstado(this.txtEstado.getText());
+        this.fornecedor.setEmail(this.txtEmail.getText());
+
+        return this.fornecedor;
+    }
+
+
+    public List<Fornecedor> lerDadosDoArquivoFornecedores() {
+        File file = new File("fornecedores.csv");
+
+        if (!file.exists() || file.length() == 0) {
+            System.out.println("O arquivo 'fornecedores.csv' não existe ou está vazio.");
+            return Collections.emptyList();
+        }
+
+        List<Fornecedor> fornecedores = new ArrayList<>();
+
+        try {
+            fornecedores = Files.lines(Paths.get("fornecedores.csv"))
+                    .map(linha -> linha.split(";"))
+                    .filter(dados -> dados.length == 6)
+                    .map(dados -> {
+                        Fornecedor fornecedor = new Fornecedor();
+                        fornecedor.setCnpj(dados[0]);
+                        fornecedor.setRazaoSocial(dados[1]);
+                        fornecedor.setTelefone(dados[2]);
+                        fornecedor.setEmail(dados[3]);
+                        fornecedor.setCidade(dados[4]);
+                        fornecedor.setEstado(dados[5]);
+                        return fornecedor;
+                    })
+                    .collect(Collectors.toList());
+
+            fornecedorList.addAll(fornecedores);
+
+            fornecedores.forEach(fornecedor ->
+                    System.out.printf("CNPJ: %s, Razão Social: %s, Telefone: %s, Email: %s, Cidade: %s, Estado: %s%n",
+                            fornecedor.getCnpj(), fornecedor.getRazaoSocial(), fornecedor.getTelefone(),
+                            fornecedor.getEmail(), fornecedor.getCidade(), fornecedor.getEstado())
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return fornecedores;
+    }
+
+    public List<Medicamento> lerDadosDoArquivoMedicamentos() {
+        File file = new File("medicamentos.csv");
+
+        if (!file.exists() || file.length() == 0) {
+            System.out.println("O arquivo 'medicamentos.csv' não existe ou está vazio.");
+            return Collections.emptyList();
+        }
+
+        List<Medicamento> medicamentos = new ArrayList<>();
+
+        try {
+            medicamentos = Files.lines(Paths.get("medicamentos.csv"))
+                    .map(linha -> linha.split(";"))
+                    .filter(dados -> dados.length == 9)
+                    .map(dados -> {
+                        Medicamento medicamento = new Medicamento();
+                        medicamento.setCodigo(dados[0]);
+                        medicamento.setNome(dados[1]);
+                        medicamento.setDescricao(dados[2]);
+                        medicamento.setPrincipioAtivo(dados[3]);
+                        medicamento.setDataValidade(LocalDate.parse(dados[4]));
+                        medicamento.setQuantidadeEstoque(Integer.parseInt(dados[5]));
+                        medicamento.setPreco(new BigDecimal(dados[6]));
+                        medicamento.setControlado(Boolean.parseBoolean(dados[7]));
+                        medicamento.setFornecedor(buscarFornecedorPorNome(dados[8]));
+                        return medicamento;
+                    })
+                    .collect(Collectors.toList());
+
+            medicamentoList.addAll(medicamentos);
+
+            medicamentos.forEach(medicamento ->
+                    System.out.printf("Código: %s, Nome: %s, Descrição: %s, Princípio Ativo: %s, Data de Validade: %s, " +
+                                    "Quantidade em Estoque: %d, Preço: %.2f, Controlado: %b, Fornecedor: %s%n",
+                            medicamento.getCodigo(), medicamento.getNome(), medicamento.getDescricao(),
+                            medicamento.getPrincipioAtivo(), medicamento.getDataValidade(), medicamento.getQuantidadeEstoque(),
+                            medicamento.getPreco(), medicamento.isControlado(), medicamento.getFornecedor() != null ? medicamento.getFornecedor().getRazaoSocial() : "N/A")
+            );
+        } catch (Exception e) {
+            System.err.println("Erro ao ler dados do arquivo: " + e.getMessage());
+        }
+
+        return medicamentos;
+    }
+
+    public void gravarFornecedoresEmArquivo(List<Fornecedor> fornecedores) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("fornecedores.csv"))) {
+            for (Fornecedor fornecedor : fornecedores) {
+                String linha = String.join(";",
+                        fornecedor.getCnpj(),
+                        fornecedor.getRazaoSocial(),
+                        fornecedor.getTelefone(),
+                        fornecedor.getEmail(),
+                        fornecedor.getCidade(),
+                        fornecedor.getEstado());
+                writer.write(linha);
+                writer.newLine();
+            }
+            System.out.println("Fornecedores gravados com sucesso em 'fornecedores.csv'.");
+        } catch (IOException e) {
+            System.err.println("Erro ao gravar fornecedores em arquivo: " + e.getMessage());
+        }
+    }
+
     public void gravarMedicamentosEmArquivo(List<Medicamento> medicamentos) {
         DecimalFormat decimalFormat = new DecimalFormat("#.00");
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("medicamentos.txt"))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("medicamentos.csv"))) {
             for (Medicamento medicamento : medicamentos) {
-                String linha = String.join(",",
+                String linha = String.join(";",
                         medicamento.getCodigo(),
                         medicamento.getNome(),
                         medicamento.getDescricao(),
@@ -381,14 +590,33 @@ public class MainController implements Initializable {
                         String.valueOf(medicamento.isControlado()),
                         medicamento.getFornecedor() != null
                                 ? medicamento.getFornecedor().getRazaoSocial() : "");
+
                 writer.write(linha);
                 writer.newLine();
             }
-            System.out.println("Medicamentos gravados com sucesso em 'medicamentos.txt'.");
+            System.out.println("Medicamentos gravados com sucesso em 'medicamentos.csv'.");
         } catch (IOException e) {
             System.err.println("Erro ao gravar medicamentos em arquivo: " + e.getMessage());
         }
     }
+
+    public Fornecedor buscarFornecedorPorNome(String nomeFornecedor) {
+        for (Fornecedor fornecedor : fornecedorList) {
+            if (fornecedor.getRazaoSocial().equalsIgnoreCase(nomeFornecedor)) {
+                return fornecedor;
+            }
+        }
+        return null;
+    }
+
+    private void showAlert (String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
 
     @FXML
     private void limparCampos() {
@@ -405,8 +633,10 @@ public class MainController implements Initializable {
         this.txtEmail.setText("");
         this.txtCidade.setText("");
         this.txtEstado.setText("");
+
     }
 
 }
+
 
 
