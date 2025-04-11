@@ -349,7 +349,7 @@
                                                             <Insets left="10.0" right="10.0" />
                                                          </HBox.margin>
                                                       </Button>
-                                                      <Button fx:id="btnExcluirFornecedor" mnemonicParsing="false" onAction="#onBtnExcluirMedicamento" text="Excluir">
+                                                      <Button fx:id="btnExcluirFornecedor" mnemonicParsing="false" text="Excluir">
                                                          <HBox.margin>
                                                             <Insets right="10.0" />
                                                          </HBox.margin>
@@ -390,7 +390,7 @@
             </VBox>
             <VBox prefHeight="628.0" prefWidth="595.0">
                <children>
-                  <TableView prefHeight="356.0" prefWidth="580.0">
+                  <TableView fx:id="medicamentosTableView" prefHeight="356.0" prefWidth="580.0">
                     <columns>
                       <TableColumn fx:id="codigoColumn" prefWidth="45.0" text="Código" />
                       <TableColumn fx:id="nomeColumn" prefWidth="50.0" text="Nome" />

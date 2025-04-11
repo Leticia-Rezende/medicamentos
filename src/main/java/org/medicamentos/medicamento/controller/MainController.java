@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -176,25 +177,42 @@ public class MainController implements Initializable {
 
     @FXML
     public void onBtnCadastrarMedicamento() {
-        this.medicamento = new Medicamento();
         if (this.medicamento != null) {
-            lerDadosMedicamentos();
+            if (lerFormulario() == null) return;
 
-            if (codigoMedicamentoJaExiste(this.medicamento.getCodigo())) {
-                System.out.println("Erro: Já existe um medicamento com o código " + this.medicamento.getCodigo());
-                return;
+            Medicamento medicamentoExistente = medicamentoList.stream()
+                    .filter(m -> m.getCodigo().equals(this.medicamento.getCodigo()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (medicamentoExistente != null) {
+                medicamentoExistente.setNome(this.medicamento.getNome());
+                medicamentoExistente.setDescricao(this.medicamento.getDescricao());
+                medicamentoExistente.setPrincipioAtivo(this.medicamento.getPrincipioAtivo());
+                medicamentoExistente.setDataValidade(this.medicamento.getDataValidade());
+                medicamentoExistente.setQuantidadeEstoque(this.medicamento.getQuantidadeEstoque());
+                medicamentoExistente.setPreco(this.medicamento.getPreco());
+                medicamentoExistente.setControlado(this.medicamento.isControlado());
+                medicamentoExistente.setFornecedor(this.medicamento.getFornecedor());
+
+                System.out.println("Medicamento atualizado com sucesso: " + medicamentoExistente.getCodigo());
+            } else {
+                this.medicamentoList.add(this.medicamento);
+                System.out.println("Medicamento adicionado com sucesso: " + this.medicamento.getCodigo());
             }
-            this.medicamentoList.add(this.medicamento);
+
+
+            gravarMedicamentosEmArquivo(medicamentoList);
             updateTableView(medicamentoList);
         }
-        this.btnExcluirMedicamento.setDisable(false);
-        this.btnConsultarMedicamento.setDisable(false);
-        this.btnListarMedicamentos.setDisable(false);
-        limparCampos();
-        lerDadosMedicamentos();
-        gravarMedicamentosEmArquivo(medicamentoList);
-
+        medicamentosTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                preencherFormularioComMedicamento(newValue);
+            }
+        });
     }
+
+
     @FXML
     public void onBtnCadastrarFornecedor() {
         if (this.fornecedor != null) {
@@ -206,6 +224,7 @@ public class MainController implements Initializable {
             }
 
             this.fornecedorList.add(this.fornecedor);
+            gravarFornecedoresEmArquivo(fornecedorList);
 
         }
         this.btnExcluirMedicamento.setDisable(false);
@@ -227,17 +246,7 @@ public class MainController implements Initializable {
             resultadoLabel.setText("Selecione um medicamento para excluir.");
         }
     }
-    @FXML
-    public void onBtnExcluirFornecedor() {
-        Fornecedor fornecedoresSelecionado = FornecedorTableView.getSelectionModel().getSelectedItem();
-        if (fornecedoresSelecionado != null) {
-            fornecedorList.remove(fornecedoresSelecionado);
-            atualizarTabela();
-            resultadoLabel.setText("Fornecedor excluído com sucesso!");
-        } else {
-            resultadoLabel.setText("Selecione um fornecedor para excluir.");
-        }
-    }
+
 
     //********
     // Consulta os medicamentos
@@ -370,6 +379,9 @@ public class MainController implements Initializable {
         this.medicamento.setNome(this.txtNome.getText());
         this.medicamento.setDescricao(this.txtDescricao.getText());
         this.medicamento.setPrincipioAtivo(this.txtPrincipioAtivo.getText());
+        String dataValidadeStr = txtDataValidade.getText();
+        LocalDate dataValidade = null; // Inicialize como null
+
         this.medicamento.setDataValidade(LocalDate.parse(this.txtDataValidade.getText()));
         this.medicamento.setQuantidadeEstoque(Integer.parseInt(this.txtQuantidade.getText()));
         String precoString = this.txtPreco.getText();
@@ -389,17 +401,17 @@ public class MainController implements Initializable {
     }
 
     public List<Medicamento> lerDadosMedicamentos() {
-        File file = new File("dadosFarmacia.txt");
+        File file = new File("medicamentos.txt");
 
         if (!file.exists() || file.length() == 0) {
-            System.out.println("O arquivo 'dadosFarmacia.txt' não existe ou está vazio.");
+            System.out.println("O arquivo 'medicamentos.txt' não existe ou está vazio.");
             return Collections.emptyList();
         }
 
         List<Medicamento> medicamentos = new ArrayList<>();
 
         try {
-            medicamentos = Files.lines(Paths.get("dadosFarmacia.txt"))
+            medicamentos = Files.lines(Paths.get("medicamentos.txt"))
                     .map(linha -> linha.split(";"))
                     .filter(dados -> dados.length == 9)
                     .map(dados -> {
@@ -471,17 +483,17 @@ public class MainController implements Initializable {
 
 
     public List<Fornecedor> lerDadosDoArquivoFornecedores() {
-        File file = new File("fornecedores.csv");
+        File file = new File("medicamentos.csv");
 
         if (!file.exists() || file.length() == 0) {
-            System.out.println("O arquivo 'fornecedores.csv' não existe ou está vazio.");
+            System.out.println("O arquivo 'medicamentos.csv' não existe ou está vazio.");
             return Collections.emptyList();
         }
 
         List<Fornecedor> fornecedores = new ArrayList<>();
 
         try {
-            fornecedores = Files.lines(Paths.get("fornecedores.csv"))
+            fornecedores = Files.lines(Paths.get("medicamentos.csv"))
                     .map(linha -> linha.split(";"))
                     .filter(dados -> dados.length == 6)
                     .map(dados -> {
@@ -600,6 +612,7 @@ public class MainController implements Initializable {
         }
     }
 
+
     public Fornecedor buscarFornecedorPorNome(String nomeFornecedor) {
         for (Fornecedor fornecedor : fornecedorList) {
             if (fornecedor.getRazaoSocial().equalsIgnoreCase(nomeFornecedor)) {
@@ -617,6 +630,19 @@ public class MainController implements Initializable {
         alert.showAndWait();
     }
 
+    private void preencherFormularioComMedicamento(Medicamento medicamento) {
+        txtCodigo.setText(medicamento.getCodigo());
+        txtNome.setText(medicamento.getNome());
+        txtDescricao.setText(medicamento.getDescricao());
+        txtPrincipioAtivo.setText(medicamento.getPrincipioAtivo());
+        txtDataValidade.setText(medicamento.getDataValidade().toString());
+        txtQuantidade.setText(String.valueOf(medicamento.getQuantidadeEstoque()));
+        txtPreco.setText(medicamento.getPreco().toString());
+        txtControlado.setText(String.valueOf(medicamento.isControlado()));
+
+        Fornecedor fornecedor = medicamento.getFornecedor();
+        txtFornecedor.setText(fornecedor != null ? fornecedor.getRazaoSocial() : "");
+    }
 
     @FXML
     private void limparCampos() {
