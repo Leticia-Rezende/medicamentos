@@ -50,9 +50,9 @@
                     <tabs>
                       <Tab text="Medicamento">
                         <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="434.0" prefWidth="345.0">
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="497.0" prefWidth="388.0">
                                  <children>
-                                    <VBox prefHeight="424.0" prefWidth="353.0">
+                                    <VBox prefHeight="456.0" prefWidth="372.0">
                                        <children>
                                           <GridPane>
                                             <columnConstraints>
@@ -87,7 +87,7 @@
                                                       <Insets />
                                                    </opaqueInsets>
                                                    <GridPane.margin>
-                                                      <Insets bottom="10.0" />
+                                                      <Insets bottom="10.0" top="4.0" />
                                                    </GridPane.margin>
                                                    <padding>
                                                       <Insets left="10.0" />
@@ -123,7 +123,7 @@
                                                       <Insets left="10.0" />
                                                    </padding>
                                                 </Label>
-                                                <Label fx:id="lbFornecedor" layoutX="10.0" layoutY="437.0" text="Fornecedor:" GridPane.rowIndex="16">
+                                                <Label fx:id="lbFornecedor" layoutX="10.0" layoutY="437.0" text="Fornecedor (Razão Social) :" GridPane.rowIndex="16">
                                                    <padding>
                                                       <Insets left="10.0" />
                                                    </padding>
@@ -199,22 +199,30 @@
                                                 </TextField>
                                                 <HBox prefHeight="45.0" prefWidth="366.0" GridPane.rowIndex="20">
                                                    <children>
-                                                      <Button fx:id="btnCadastrarMedicamento" mnemonicParsing="false" onAction="#onBtnCadastrarMedicamento" text="Cadastrar">
+                                                      <Button fx:id="btnNovoMedicamento" layoutX="234.0" layoutY="10.0" mnemonicParsing="false" onAction="#onBtnNovoMedicamento" text="Novo" textFill="#e51ecb">
+                                                         <HBox.margin>
+                                                            <Insets left="9.0" />
+                                                         </HBox.margin>
+                                                      </Button>
+                                                      <Button fx:id="btnCadastrarMedicamento" mnemonicParsing="false" onAction="#onBtnCadastrarMedicamento" text="Cadastrar" textFill="#e51ecb">
                                                          <HBox.margin>
                                                             <Insets left="10.0" right="10.0" />
                                                          </HBox.margin>
                                                       </Button>
-                                                      <Button fx:id="btnExcluirMedicamento" mnemonicParsing="false" onAction="#onBtnExcluirMedicamento" text="Excluir">
+                                                      <Button fx:id="btnExcluirMedicamento" mnemonicParsing="false" onAction="#onBtnExcluirMedicamento" text="Excluir" textFill="#e51ecb">
                                                          <HBox.margin>
                                                             <Insets right="10.0" />
                                                          </HBox.margin>
                                                       </Button>
-                                                      <Button fx:id="btnConsultarMedicamento" mnemonicParsing="false" onAction="#onBtnConsultarMedicamento" text="Consultar">
+                                                      <Button fx:id="btnConsultarMedicamento" mnemonicParsing="false" onAction="#onBtnConsultarMedicamento" text="Consultar" textFill="#e51ecb">
                                                          <HBox.margin>
                                                             <Insets right="10.0" />
                                                          </HBox.margin>
                                                       </Button>
-                                                      <Button fx:id="btnListarMedicamentos" mnemonicParsing="false" onAction="#onBtnListarMedicamentos" text="Listar Medicamentos" />
+                                                      <Button fx:id="btnListarMedicamentos" mnemonicParsing="false" onAction="#onBtnListarMedicamentos" text="Listar " textFill="#e51ecb">
+                                                         <HBox.margin>
+                                                            <Insets />
+                                                         </HBox.margin></Button>
                                                    </children>
                                                    <padding>
                                                       <Insets bottom="25.0" />
@@ -344,9 +352,14 @@
                                                       <Insets bottom="25.0" />
                                                    </padding>
                                                    <children>
-                                                      <Button fx:id="btnCadastrarFornecedor" mnemonicParsing="false" onAction="#onBtnCadastrarFornecedor" text="Cadastrar">
+                                                      <Button fx:id="btnNovoFornecedor" mnemonicParsing="false" onAction="#onBtnNovoFornecedor" text="Novo">
                                                          <HBox.margin>
                                                             <Insets left="10.0" right="10.0" />
+                                                         </HBox.margin>
+                                                      </Button>
+                                                      <Button fx:id="btnCadastrarFornecedor" layoutX="20.0" layoutY="10.0" mnemonicParsing="false" onAction="#onBtnCadastrarFornecedor" text="Cadastrar">
+                                                         <HBox.margin>
+                                                            <Insets right="10.0" />
                                                          </HBox.margin>
                                                       </Button>
                                                       <Button fx:id="btnExcluirFornecedor" mnemonicParsing="false" text="Excluir">
@@ -424,12 +437,12 @@
                      <children>
                         <HBox prefHeight="93.0" prefWidth="542.0">
                            <children>
-                              <Button fx:id="btnEstoque5Uni" mnemonicParsing="false" onAction="#onBtnEstoque5Uni" text="Estoque &lt; 5 uni">
+                              <Button fx:id="btnEstoque5Uni" mnemonicParsing="false" onAction="#onBtnEstoque5Uni" text="Estoque &lt; 5 uni" textFill="#e51ecb">
                                  <HBox.margin>
                                     <Insets left="20.0" top="25.0" />
                                  </HBox.margin>
                               </Button>
-                              <Button fx:id="btnFiltrar30dias" contentDisplay="TOP" mnemonicParsing="false" onAction="#onBtnFiltrar30dias" text="Filtrar &lt;= 30 dias" textOverrun="WORD_ELLIPSIS">
+                              <Button fx:id="btnFiltrar30dias" contentDisplay="TOP" mnemonicParsing="false" onAction="#onBtnFiltrar30dias" text="Filtrar &lt;= 30 dias" textFill="#e51ecb" textOverrun="WORD_ELLIPSIS">
                                  <HBox.margin>
                                     <Insets left="20.0" top="25.0" />
                                  </HBox.margin>

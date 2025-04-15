@@ -100,6 +100,11 @@ public class MainController implements Initializable {
     // ***********
     // Botões
     @FXML
+    private Button btnNovoMedicamento;
+
+    @FXML
+    private Button btnNovoFornecedor;
+    @FXML
     private Button btnCadastrarMedicamento;
     @FXML
     private Button btnExcluirMedicamento;
@@ -135,11 +140,11 @@ public class MainController implements Initializable {
 
         this.btnCadastrarMedicamento.setDisable(false);
         this.btnExcluirMedicamento.setDisable(true);
-        this.btnConsultarMedicamento.setDisable(true);
-        this.btnListarMedicamentos.setDisable(true);
+        this.btnConsultarMedicamento.setDisable(false);
+        this.btnListarMedicamentos.setDisable(false);
 
-        this.btnEstoque5Uni.setDisable(true);
-        this.btnFiltrar30dias.setDisable(true);
+        this.btnEstoque5Uni.setDisable(false);
+        this.btnFiltrar30dias.setDisable(false);
 
         this.btnExcluirFornecedor.setDisable(true);
         this.btnConsultarFornecedor.setDisable(true);
@@ -163,18 +168,37 @@ public class MainController implements Initializable {
 
         List<Medicamento> medicamentosCarregados = lerDadosDoArquivoMedicamentos();
         medicamentoList.addAll(medicamentosCarregados);
-
-
     }
-
     private void atualizarTabela() {
         medicamentosTableView.getItems().clear();
         medicamentosTableView.getItems().addAll(medicamentoList);
     }
-
     //************
     // Ações dos botões Medicamento e Fornecedores
+    @FXML
+    public void onBtnNovoMedicamento(){
+        this.medicamento = new Medicamento();
+        limparCampos();
+        this.btnCadastrarMedicamento.setDisable(false);
+        this.btnExcluirMedicamento.setDisable(false);
 
+        String codigo = codigoColumn.getText();
+        String nome = nomeColumn.getText();
+        String descricao = descricaoColumn.getText();
+        String precoAtivo = precoColumn.getText();
+        String dataValidade = dataValidadeColumn.getText();
+        String quantidade = quantidadeColumn.getText();
+        String preco = precoColumn.getText();
+        String controlado = controladoColumn.getText();
+        String fornecedor = fornecedorColumn.getText();
+    }
+    @FXML
+    public void onBtnNovoFornecedor(){
+        this.fornecedor = new Fornecedor();
+        limparCampos();
+        this.btnCadastrarFornecedor.setDisable(false);
+        this.btnExcluirFornecedor.setDisable(false);
+    }
     @FXML
     public void onBtnCadastrarMedicamento() {
         if (this.medicamento != null) {
@@ -200,8 +224,6 @@ public class MainController implements Initializable {
                 this.medicamentoList.add(this.medicamento);
                 System.out.println("Medicamento adicionado com sucesso: " + this.medicamento.getCodigo());
             }
-
-
             gravarMedicamentosEmArquivo(medicamentoList);
             updateTableView(medicamentoList);
         }
@@ -211,29 +233,20 @@ public class MainController implements Initializable {
             }
         });
     }
-
-
     @FXML
     public void onBtnCadastrarFornecedor() {
         if (this.fornecedor != null) {
-            lerFormulario();
+            lerDadosFornecedor();
 
             if (razaoSocialFornecedorJaExiste(this.fornecedor.getRazaoSocial())) {
                 System.out.println("Erro: Já existe um fornecedor com essa Razão Social " + this.fornecedor.getRazaoSocial());
                 return;
             }
-
             this.fornecedorList.add(this.fornecedor);
             gravarFornecedoresEmArquivo(fornecedorList);
-
         }
-        this.btnExcluirMedicamento.setDisable(false);
-        this.btnConsultarMedicamento.setDisable(false);
-
         limparCampos();
         lerDadosFornecedor();
-
-
     }
     @FXML
     public void onBtnExcluirMedicamento() {
@@ -243,7 +256,7 @@ public class MainController implements Initializable {
             atualizarTabela();
             resultadoLabel.setText("Medicamento excluído com sucesso!");
         } else {
-            resultadoLabel.setText("Selecione um medicamento para excluir.");
+             resultadoLabel.setText("Selecione um medicamento para excluir.");
         }
     }
 
@@ -343,6 +356,7 @@ public class MainController implements Initializable {
 
     public void updateTableView(List<Medicamento> medicamentos) {
         ObservableList<Medicamento> observableList = FXCollections.observableArrayList(medicamentos);
+        medicamentosTableView.setItems(observableList);
 
     }
 
@@ -396,7 +410,6 @@ public class MainController implements Initializable {
         } else {
             this.medicamento.setFornecedor(fornecedor);
         }
-
         return this.medicamento;
     }
 
@@ -659,9 +672,7 @@ public class MainController implements Initializable {
         this.txtEmail.setText("");
         this.txtCidade.setText("");
         this.txtEstado.setText("");
-
     }
-
 }
 
 
