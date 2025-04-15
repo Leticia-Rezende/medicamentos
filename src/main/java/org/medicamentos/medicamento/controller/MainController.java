@@ -226,6 +226,7 @@ public class MainController implements Initializable {
             }
             gravarMedicamentosEmArquivo(medicamentoList);
             updateTableView(medicamentoList);
+
         }
         medicamentosTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
@@ -245,8 +246,8 @@ public class MainController implements Initializable {
             this.fornecedorList.add(this.fornecedor);
             gravarFornecedoresEmArquivo(fornecedorList);
         }
-        limparCampos();
         lerDadosFornecedor();
+        limparCampos();
     }
     @FXML
     public void onBtnExcluirMedicamento() {
@@ -311,18 +312,18 @@ public class MainController implements Initializable {
 
     @FXML
     public void onBtnListarMedicamentos() {
-        atualizarTabela();
-        resultadoLabel.setText("Medicamentos listados.");
+
+        updateTableView(medicamentoList);
     }
 
     // Botões de filtragem de 5 e 30
     @FXML
     public void onBtnEstoque5Uni() {
-        List<Medicamento> estoqueBaixo5dias = (List<Medicamento>) medicamentoList.stream();
-        atualizarTabelaFiltrada(estoqueBaixo5dias);
-        resultadoLabel.setText("Medicamentos com estoque baixo listados.");
+        List<Medicamento> medicamentosEstoqueBaixo = medicamentoList.stream()
+                .filter(medicamento -> medicamento.getQuantidadeEstoque() < 5)
+                .collect(Collectors.toList());
+        updateTableView(medicamentosEstoqueBaixo);
     }
-
     @FXML
     public void onBtnFiltrar30dias() {
         LocalDate diaAtual = LocalDate.now();
@@ -333,60 +334,44 @@ public class MainController implements Initializable {
                         medicamento.getDataValidade().isAfter(diaAtual))
                 .collect(Collectors.toList());
         updateTableView(medicamentosCom30Dias);
-
     }
-
     private void atualizarTabelaFiltrada(List<Medicamento> medicamentos) {
         medicamentosTableView.getItems().clear();
         medicamentosTableView.getItems().addAll(medicamentos);
     }
-
     public List<Medicamento> filtrarMedicamentos30dias(List<Medicamento> medicamentos) {
         return medicamentos.stream()
                 .filter(m -> m.getDataValidade().isBefore(LocalDate.now().plusDays(30)))
                 .collect(Collectors.toList());
     }
-
     public List<Medicamento> estoqueBaixo5dias(List<Medicamento> medicamentos) {
         return medicamentos.stream()
                 .filter(m -> m.getQuantidadeEstoque() < 5)
                 .collect(Collectors.toList());
-
     }
-
     public void updateTableView(List<Medicamento> medicamentos) {
         ObservableList<Medicamento> observableList = FXCollections.observableArrayList(medicamentos);
         medicamentosTableView.setItems(observableList);
-
     }
-
     public class Validador {
-
         private static final Pattern CODIGO_PATTERN = Pattern.compile("[a-zA-Z0-9]{7}");
         private static final Pattern CNPJ_PATTERN = Pattern.compile("^\\d{2}\\.\\d{3}\\.\\d{3}/\\d{4}-\\d{2}$");
-
         public static boolean validarCodigo(String codigo) {
             return codigo != null && CODIGO_PATTERN.matcher(codigo).matches();
         }
-
         public static boolean validarNome(String nome) {
             return nome != null && !nome.trim().isEmpty() && nome.trim().length() >= 3; // Exemplo de tamanho mínimo
         }
-
-        // TODO: Implementar validação de CNPJ com dígito verificador
         public static boolean validarCNPJ(String cnpj) {
             return cnpj != null && CNPJ_PATTERN.matcher(cnpj).matches();
         }
     }
-
     private boolean codigoMedicamentoJaExiste(String codigo) {
         return medicamentoList.stream().anyMatch(medicamento -> medicamento.getCodigo().equals(codigo));
     }
-
     private boolean razaoSocialFornecedorJaExiste(String razaoSocial) {
         return fornecedorList.stream().anyMatch(fornecedor -> fornecedor.getRazaoSocial().equals(razaoSocial));
     }
-
 
     public Medicamento lerFormulario() {
         this.medicamento.setCodigo(this.txtCodigo.getText());
@@ -666,6 +651,8 @@ public class MainController implements Initializable {
         this.txtDataValidade.setText("");
         this.txtQuantidade.setText("");
         this.txtPreco.setText("");
+        this.txtControlado.setText("");
+        this.txtFornecedor.setText("");
         this.txtCnpj.setText("");
         this.txtRazaoSocial.setText("");
         this.txtTelefone.setText("");
